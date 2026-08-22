@@ -1,0 +1,6 @@
+#!/bin/bash
+TARGET="$1"
+if [ -z "$TARGET" ]; then
+    TARGET="http://localhost:42000"
+fi
+/mnt/c/Windows/System32/cmd.exe /c start "" "$TARGET" 2>/dev/null || /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "Start-Process '$TARGET'" 2>/dev/null || true
