@@ -10,8 +10,7 @@ module.exports = {
     {
       method: "shell.run",
       params: {
-        message: "source env/bin/activate && uv pip install -r app/requirements.txt --index-strategy unsafe-best-match",
-        venv: "env",
+        message: "source env/bin/activate && uv pip install -r requirements.txt --index-strategy unsafe-best-match",
         path: "Maestro"
       }
     },

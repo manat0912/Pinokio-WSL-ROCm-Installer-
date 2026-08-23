@@ -13,6 +13,21 @@ Write-Host " Target Hardware: AMD AI Pro 9700 (gfx1201)" -ForegroundColor Yellow
 Write-Host "================================================================" -ForegroundColor Cyan
 Write-Host ""
 
+# STEP 0: Download AMD Software PRO Edition driver (AMD AI PRO series)
+# Prerequisite for ROCm-on-WSL2 GPU passthrough (ROCDXG / /dev/dxg).
+Write-Host "[0/8] Downloading AMD Software PRO Edition driver (AMD AI PRO series)..." -ForegroundColor Green
+$amdDriverUrl = "https://drivers.amd.com/drivers/prographics/amd-software-pro-edition-26.q3-win11-b.exe"
+$amdDriverPath = Join-Path $env:USERPROFILE "Downloads\amd-software-pro-edition-26.q3-win11-b.exe"
+try {
+    Invoke-WebRequest -Uri $amdDriverUrl -OutFile $amdDriverPath -UseBasicParsing
+    Write-Host "  -> Driver downloaded to $amdDriverPath" -ForegroundColor Gray
+    Write-Host "  -> IMPORTANT: install the driver (run the .exe) and reboot before launching Pinokio." -ForegroundColor Yellow
+} catch {
+    Write-Host "  -> Auto-download failed. Download manually via wget:" -ForegroundColor Yellow
+    Write-Host "     wget $amdDriverUrl -O ~/Downloads/amd-software-pro-edition-26.q3-win11-b.exe" -ForegroundColor Yellow
+}
+Write-Host ""
+
 # STEP 1: GPU TDR Driver Latency Optimization
 Write-Host "[1/7] Configuring GPU Graphics Driver TDR Delays..." -ForegroundColor Green
 $GraphicsRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"

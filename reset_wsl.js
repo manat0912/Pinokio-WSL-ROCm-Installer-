@@ -3,8 +3,7 @@ module.exports = {
     {
       method: "shell.run",
       params: {
-        message: "rm -rf ~/Maestro",
-        path: "Maestro"
+        message: "rm -rf Maestro app/.installed_wsl"
       }
     },
     {
