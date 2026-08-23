@@ -4,7 +4,7 @@ module.exports = {
     {
       method: "shell.run",
       params: {
-        message: "source env/bin/activate && cd app && python launch.py",
+        message: "wsl source env/bin/activate && wsl cd app && wsl python launch.py",
         venv: "env",
         path: "Maestro"
       }
