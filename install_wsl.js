@@ -47,6 +47,17 @@ module.exports = {
     {
       method: "shell.run",
       params: {
+        path: "Maestro/ui",
+        message: [
+          "export PATH=/home/manat/pinokio/bin/miniconda/bin:$PATH",
+          "npm install",
+          "npm run build"
+        ]
+      }
+    },
+    {
+      method: "shell.run",
+      params: {
         message: "mkdir -p app && touch app/.installed_wsl"
       }
     },
