@@ -24,6 +24,16 @@ export ELECTRON_OZONE_PLATFORM_HINT=x11
 export LD_LIBRARY_PATH=/usr/lib/wsl/lib:/opt/rocm/lib:${LD_LIBRARY_PATH}
 export BROWSER=/usr/local/bin/wsl-browser-bridge
 
+# RDNA4 (gfx1200/gfx1201) optimization environment for AMD Radeon AI PRO R9700
+export AMDGPU_TARGETS="gfx1200"
+export PYTORCH_ROCM_ARCH="gfx1200"
+export ROCM_FLASH_ATTN_USE_CK=0
+export FLASH_ATTENTION_TRITON_AMD_ENABLE=TRUE
+export FLASH_ATTN_TRITON=1
+export TORCH_ROCM_FA_PREFER_CK=0
+export FORCE_CUDA=1
+export FORCE_ROCM=1
+
 unset NODE_OPTIONS
 touch ~/.hushlogin 2>/dev/null || true
 
@@ -35,6 +45,7 @@ echo "===================================================================="
 echo ""
 echo "[*] AMD ROCm 7.2 & gfx1201 compute environment initialized."
 echo "[*] X11 display bypass & Electron latency optimizations active."
+echo "[*] RDNA4 Triton/AOTriton attention backends enabled."
 echo "[*] Architecture: Windows Pinokio GUI + WSL2 ROCm Backend"
 echo ""
 

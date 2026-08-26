@@ -51,6 +51,16 @@ export ELECTRON_FORCE_WINDOW_MENU_BAR=1
 export LD_LIBRARY_PATH=/usr/lib/wsl/lib:/opt/rocm/lib:${LD_LIBRARY_PATH}
 export NODE_OPTIONS="--max-old-space-size=8192 --use-openssl-ca --no-warnings"
 
+# RDNA4 (gfx1200/gfx1201) optimization for AMD Radeon AI PRO R9700
+export AMDGPU_TARGETS="gfx1200"
+export PYTORCH_ROCM_ARCH="gfx1200"
+export ROCM_FLASH_ATTN_USE_CK=0
+export FLASH_ATTENTION_TRITON_AMD_ENABLE=TRUE
+export FLASH_ATTN_TRITON=1
+export TORCH_ROCM_FA_PREFER_CK=0
+export FORCE_CUDA=1
+export FORCE_ROCM=1
+
 # Pinokio WSL Backend Configuration
 export PINOKIO_HOME="$HOME/pinokio"
 export PINOKIO_WSL_BACKEND=true

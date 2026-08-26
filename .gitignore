@@ -4,3 +4,42 @@ temp/
 __pycache__/
 .vscode/
 .idea/
+
+# Model weights and large assets (not included in repo)
+*.safetensors
+*.bin
+*.pth
+*.gguf
+*.pt
+*.ckpt
+*.whl
+*.deb
+
+# Model directories
+ckpts/
+loras/
+outputs/
+models/**/ckpts/
+models/**/loras/
+
+# HuggingFace cache
+.huggingface/
+cache/
+
+# Large data files
+*.npy
+*.npz
+*.arrow
+*.parquet
+
+# OS and editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace

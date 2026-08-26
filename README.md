@@ -14,8 +14,10 @@ An optimized environment and automated one-click installer for running **Pinokio
 
 ```
 Windows (Pinokio GUI)
-   ↳ WSL2 (Ubuntu 24.04)
-       ↳ Pinokio Backend (ROCm / AI apps)
+   │
+   └─→ WSL2 (Ubuntu 24.04)
+         │
+         └─→ Pinokio Backend (ROCm / AI apps)
 ```
 
 This architecture provides:
@@ -34,6 +36,46 @@ This architecture provides:
 | **Memory Thrashing / Freezes** | WSL dynamic memory reclaim and swap page faults | Configured `.wslconfig` with `swap=0`, explicit RAM allocation, and `dropcache` |
 | **GPU Scheduling Drops** | Host-to-guest PCIe memory contention & Windows TDR | Enabled `HSA_FORCE_FINE_GRAIN_PCIE=1`, `HSA_ENABLE_SDMA=0`, and set `TdrDelay=10` |
 | **GPU not detected by PyTorch** | WSL2 ROCm uses `/dev/dxg` (ROCDXG), not `/dev/kfd` | Set `HSA_ENABLE_DXG_DETECTION=1` (see below) |
+| **VAE OOM on long videos** | LTX/Open-Sora VAE decodes entire video in one tensor | VRAM-based tiled decoding (512×17 tiles on 32GB) |
+| **Generation time limit** | Non-sliding-window models capped at ~4.5 min | Unified `get_max_frames(737)` + multiplier=13 → 10 min |
+| **RDNA4 compiler backend** | CK optimized for CDNA, not RDNA4 | Force Triton/AOTriton via `AMDGPU_TARGETS=gfx1200` |
+
+---
+
+## RDNA4 (gfx1201) Optimization Environment
+
+The following environment variables are set globally across all entry points (conda hook, systemd service, launcher) to optimize for **AMD Radeon AI PRO R9700 (gfx1201)**:
+
+```bash
+# RDNA4 base architecture target
+export AMDGPU_TARGETS="gfx1200"
+export PYTORCH_ROCM_ARCH="gfx1200"
+
+# Enable experimental AOTriton-backed attention paths
+export TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1
+
+# Force Triton backend for FlashAttention (CK is CDNA-optimized)
+export ROCM_FLASH_ATTN_USE_CK=0
+export FLASH_ATTENTION_TRITON_AMD_ENABLE=TRUE
+export FLASH_ATTN_TRITON=1
+
+# Prefer AOTriton over Composable Kernel for SDPA
+export TORCH_ROCM_FA_PREFER_CK=0
+
+# xFormers build compatibility
+export FORCE_CUDA=1
+export FORCE_ROCM=1
+```
+
+**Libraries that benefit:**
+| Library | Flag Impact |
+|---|---|
+| **FlashAttention-2** | Triton backend (not CK) |
+| **SageAttention** | AOTriton kernels |
+| **xFormers** | Bypass NVCC checks, build for RDNA4 |
+| **FlexAttention / TorchCompile** | max-autotune Triton codegen |
+| **AOTriton SDPA** | AOTriton > CK |
+| **AITER** | Compile for RDNA4 |
 
 ---
 
@@ -75,8 +117,7 @@ pip install --force-reinstall --no-deps torch.whl
 
 ## AMD PRO Driver Download (AMD AI PRO series)
 
-ROCm-on-WSL2 requires the AMD Software PRO Edition driver. Download it (Windows)
-with:
+ROCm-on-WSL2 requires the AMD Software PRO Edition driver. Download it (Windows) with:
 
 ```bash
 wget https://drivers.amd.com/drivers/prographics/amd-software-pro-edition-26.q3-win11-b.exe -O ~/Downloads/amd-software-pro-edition-26.q3-win11-b.exe
@@ -125,6 +166,24 @@ The Linux version of Pinokio runs inside WSL2 with full ROCm GPU acceleration, w
 
 ---
 
+## Supported Models (Installer-managed)
+
+The installer provides optimized configurations for these models (model weights downloaded on first use):
+
+| Model Family | Architecture | Key Optimizations |
+|---|---|---|
+| **Wan 2.1/2.2** | 1.3B, 5B, 14B | 5B config (dim=3072), VRAM tiling, 3-step distilled profiles |
+| **Hummingbird-XT** | 5B (ti2v_2_2) | 3-step DMD, lightweight VAE, compatible_model_paths |
+| **LTX 2.3 / 2.5** | 19B, 22B | VRAM-based VAE tiling, correct LoRA dirs (ltx2_22B) |
+| **Open-Sora 2.0** | STDiT3 (11B) | STDiT3 pipeline, DPM-Solver, Hunyuan VAE, VAE tiling |
+| **Minimax H3** | FL2VA/Ref2VA | SDPA attention (SOL requires Triton 3.6+) |
+| **SCAIL** | 14B | YOLOX GPU-only (CUDAExecutionProvider) |
+| **Hunyuan / Flux / Qwen** | Various | GPU-only, no CPU offload |
+
+**Model weights are NOT included in this repo** — they are downloaded on first use and stored in WSL native storage (`/home/<user>/Maestro/app/ckpts/`) for performance. This repo only contains the installer and configuration scripts.
+
+---
+
 ## Project Roadmap
 
 ### Phase 1 — Optimization (Completed)
@@ -133,6 +192,9 @@ The Linux version of Pinokio runs inside WSL2 with full ROCm GPU acceleration, w
 - [x] Optimize Pinokio launch pipeline (`start.js` / `install.js`).
 - [x] Configure zero-swap memory footprint.
 - [x] Automatic Pinokio v8.0.40 download and installation in WSL2.
+- [x] RDNA4 Triton/AOTriton attention backend flags.
+- [x] VAE tiling for LTX and Open-Sora (fixes OOM on long videos).
+- [x] Unified 10-minute generation limit for all models.
 
 ### Phase 2 — Validation & Stress Testing
 - [ ] Long-duration multi-model inference tests.
