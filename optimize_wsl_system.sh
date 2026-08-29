@@ -40,9 +40,6 @@ export HSA_ENABLE_DXG_DETECTION=1
 export TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1
 export HSA_ENABLE_SDMA=0
 export HSA_FORCE_FINE_GRAIN_PCIE=1
-export GPU_MAX_HEAP_SIZE=100
-export GPU_MAX_ALLOC_PERCENT=100
-export GPU_SINGLE_ALLOC_PERCENT=100
 export MESA_NO_ERROR=1
 export vblank_mode=0
 export DISPLAY=:0
@@ -60,6 +57,10 @@ export FLASH_ATTN_TRITON=1
 export TORCH_ROCM_FA_PREFER_CK=0
 export FORCE_CUDA=1
 export FORCE_ROCM=1
+
+# ROCm memory allocator: 512MB blocks reduce fragmentation during VAE decode
+export PYTORCH_HIP_ALLOC_CONF="max_split_size_mb:512"
+export PYTORCH_ROCM_ALLOC_CONF="max_split_size_mb:512"
 
 # Pinokio WSL Backend Configuration
 export PINOKIO_HOME="$HOME/pinokio"

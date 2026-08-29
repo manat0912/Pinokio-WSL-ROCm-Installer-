@@ -50,7 +50,12 @@ export TORCH_ROCM_FA_PREFER_CK=0
 # Force CUDA/ROCM dual-path for xFormers build compatibility
 export FORCE_CUDA=1
 export FORCE_ROCM=1
+
+# ROCm memory allocator: split memory into 512MB blocks to reduce fragmentation
+# during VAE decode (22B transformer still resident -> no contiguous block).
+export PYTORCH_HIP_ALLOC_CONF="max_split_size_mb:512"
+export PYTORCH_ROCM_ALLOC_CONF="max_split_size_mb:512"
 EOF
 
 echo "[*] Installed ROCm DXG + RDNA4 env hook -> $AD/rocm_dxg.sh"
-echo "[*] All 10 RDNA4 optimization vars will now apply to every conda activation."
+echo "[*] All RDNA4 + allocator vars will now apply to every conda activation."
