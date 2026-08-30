@@ -130,7 +130,13 @@ launching Pinokio.
 ---
 
 ## Hardware Target
-- **AMD AI Pro 9700 / AMD Radeon AI PRO R9700 (gfx1201)**
+- **RDNA4**: Radeon AI PRO R9700 / RX 9070 XT (gfx1201)
+- **RDNA3**: RX 7900 / 7800 / 7700 / 7600 (gfx110x)
+- **RDNA2**: RX 6900 / 6800 / 6700 / 6600 / 6500 (gfx103x)
+
+The installer (`Setup-Pinokio-ROCm.ps1`) auto-detects the GPU and installs the
+matching ROCm/PyTorch stack; `apply_vae_fix.py` patches the video-model VAE
+decode for RDNA4 after a model is installed.
 
 ---
 
