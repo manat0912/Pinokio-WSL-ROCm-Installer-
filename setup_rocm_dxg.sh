@@ -55,6 +55,11 @@ export PYTORCH_ROCM_ALLOC_CONF="max_split_size_mb:512"
 # MIOpen: skip exhaustive conv3d solver search (stalls VAE decode on RDNA4).
 export MIOPEN_FIND_MODE=FAST
 
+# BLAS threading: pin OpenBLAS/OMP to the host core count (WSL core detection
+# can under-report). NumPy/SciPy (scipy-openblas) read these at runtime.
+export OPENBLAS_NUM_THREADS=20
+export OMP_NUM_THREADS=20
+
 export GPU_MAX_HEAP_SIZE=100
 export GPU_MAX_ALLOC_PERCENT=100
 export GPU_SINGLE_ALLOC_PERCENT=100
